@@ -255,7 +255,7 @@
         
         .demo-table {
             display: grid;
-            gap: 8px;
+            gap: 10px;
             margin-top: 20px;
             opacity: 0;
             transform: translateY(20px);
@@ -270,11 +270,13 @@
         .demo-row {
             display: grid;
             grid-template-columns: 1fr 2fr 1fr;
-            padding: 12px;
+            padding: 8px;
             background: linear-gradient(135deg, #2a2a3e, #1e1e2e);
             border-radius: 8px;
             border: 1px solid #3282b8;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            margin-bottom: 8px;
+            min-height: 35px;
         }
         
         .demo-row.header {
@@ -282,20 +284,22 @@
             font-weight: bold;
             color: #bbe1fa;
             text-shadow: 0 0 5px rgba(187, 225, 250, 0.5);
-            padding: 12px;
+            padding: 8px;
             font-size: 14px;
+            margin-bottom: 10px;
+            min-height: 35px;
         }
         
         .slot-cell {
-            overflow: hidden;
+            overflow: visible;
             height: 25px;
             position: relative;
         }
         
         .slot-content {
-            position: absolute;
+            position: relative;
             top: 0;
-            transition: top 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             width: 100%;
             color: #bbe1fa;
             font-weight: bold;
@@ -790,13 +794,6 @@
             typingQuery.style.width = '0';
             demoTable.classList.remove('show');
             
-            // Reset slot contents - but keep them visible initially
-            const slotContents = document.querySelectorAll('.slot-content');
-            slotContents.forEach(content => {
-                content.classList.remove('animate');
-                content.style.top = '0'; // Keep visible initially
-            });
-            
             // Start typing animation
             setTimeout(() => {
                 typingQuery.style.animation = 'typing 3s steps(20, end) forwards, blink-caret 0.75s step-end infinite';
@@ -805,16 +802,6 @@
             // Show table after typing completes
             setTimeout(() => {
                 demoTable.classList.add('show');
-                
-                // Animate slot machine effect - move from top to show the "reveal" effect
-                slotContents.forEach((content, index) => {
-                    // First hide them by moving up
-                    content.style.top = '-100%';
-                    setTimeout(() => {
-                        content.style.top = '0';
-                        content.classList.add('animate');
-                    }, index * 200); // Simpler timing - 200ms delay per element
-                });
             }, 3500);
         }
         
