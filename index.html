@@ -3,849 +3,825 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Data Science Review</title>
+    <title>SQL Week 1 - SELECT *</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
-            color: #ffffff;
-            min-height: 100vh;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e94560;
+            font-family: 'Courier New', monospace;
             overflow-x: hidden;
+            min-height: 100vh;
         }
         
-        .stars {
+        .branding {
+            position: fixed;
+            top: 80px;
+            left: 10px;
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid #e94560;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #bbe1fa;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
+        }
+        
+        .header {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
+            right: 0;
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            border-bottom: 2px solid #e94560;
+            padding: 20px;
+            text-align: center;
+            color: #bbe1fa;
+            font-size: 28px;
+            font-weight: bold;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
+            text-shadow: 0 0 20px rgba(187, 225, 250, 0.8);
+            animation: headerGlow 3s ease-in-out infinite alternate;
         }
         
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #fff;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
+        @keyframes headerGlow {
+            from { 
+                text-shadow: 0 0 20px rgba(187, 225, 250, 0.8);
+                transform: scale(1);
+            }
+            to { 
+                text-shadow: 0 0 30px rgba(233, 69, 96, 0.9), 0 0 40px rgba(187, 225, 250, 0.6);
+                transform: scale(1.02);
+            }
         }
         
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
+        .branding div {
+            margin: 2px 0;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            z-index: 2;
+            padding: 100px 20px 20px 20px;
         }
         
-        .header {
+        .neon-title {
+            font-size: 3rem;
             text-align: center;
-            padding: 60px 0;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            border-radius: 20px;
-            margin-bottom: 40px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(0,255,255,0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-        
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .header h1 {
-            font-size: 3.5em;
-            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            margin: 30px 0;
+            background: linear-gradient(45deg, #e94560, #f27121, #e94560);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
+            text-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
             animation: glow 2s ease-in-out infinite alternate;
         }
         
         @keyframes glow {
-            from { text-shadow: 0 0 20px #00ffff; }
-            to { text-shadow: 0 0 30px #ff00ff, 0 0 40px #ffff00; }
+            from { filter: drop-shadow(0 0 20px #e94560); }
+            to { filter: drop-shadow(0 0 30px #f27121); }
         }
         
-        .date-time {
-            font-size: 1.4em;
-            color: #00ffff;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin: 50px 0;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border: 2px solid #00ffff;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.5s ease;
-            cursor: pointer;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(0,255,255,0.3);
-            border-color: #ff00ff;
-        }
-        
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s;
-        }
-        
-        .stat-card:hover::before {
-            left: 100%;
-        }
-        
-        .stat-number {
-            font-size: 3em;
-            font-weight: bold;
-            background: linear-gradient(45deg, #00ffff, #ff00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .agenda-item {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border: 1px solid #333;
-            margin: 30px 0;
+        .code-block {
+            background: linear-gradient(145deg, #1e1e2e, #2a2a3e);
+            border: 2px solid #e94560;
             border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.6s ease;
-            perspective: 1000px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 8px 32px rgba(233, 69, 96, 0.2);
         }
         
-        .agenda-item:hover {
-            transform: rotateY(5deg) rotateX(5deg);
-            box-shadow: 0 25px 50px rgba(0,255,255,0.2);
-            border-color: #00ffff;
-        }
-        
-        .agenda-content {
-            padding: 30px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .agenda-item h3 {
-            font-size: 1.5em;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            color: #ffffff;
-        }
-        
-        .time-badge {
-            background: linear-gradient(45deg, #ff00ff, #00ffff);
-            color: #000;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.9em;
-            margin-right: 20px;
-            font-weight: bold;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .agenda-item p {
-            color: #cccccc;
-            line-height: 1.8;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-        
-        .owner {
-            background: linear-gradient(45deg, #00ffff, #0066ff);
-            color: #000;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            display: inline-block;
-            font-weight: bold;
-        }
-        
-        .flip-card {
-            background-color: transparent;
-            width: 100%;
-            height: 200px;
-            perspective: 1000px;
-            margin: 20px 0;
-        }
-        
-        .flip-card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.8s;
-            transform-style: preserve-3d;
-            cursor: pointer;
-        }
-        
-        .flip-card:hover .flip-card-inner {
-            transform: rotateY(180deg);
-        }
-        
-        .flip-card-front, .flip-card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-        
-        .flip-card-front {
-            background: linear-gradient(45deg, #1a1a2e, #16213e);
-            border: 2px solid #00ffff;
-            color: #00ffff;
-        }
-        
-        .flip-card-back {
-            background: linear-gradient(45deg, #16213e, #1a1a2e);
-            border: 2px solid #ff00ff;
-            color: #ff00ff;
-            transform: rotateY(180deg);
-        }
-        
-        .footer {
-            background: linear-gradient(135deg, #1a1a2e, #0f3460);
-            padding: 40px;
-            text-align: center;
-            border-radius: 20px;
-            margin-top: 50px;
-            border: 1px solid #333;
-        }
-        
-        .footer p {
-            margin: 10px 0;
-            font-size: 1.1em;
-        }
-        
-        .meeting-link {
-            color: #00ffff;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .meeting-link:hover {
-            color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #00ffff;
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        
-        .celebration {
-            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            margin: 40px 0;
-            position: relative;
-            overflow: hidden;
-            animation: rainbow 3s ease-in-out infinite;
-        }
-        
-        @keyframes rainbow {
-            0%, 100% { background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); }
-            25% { background: linear-gradient(135deg, #feca57, #48dbfb, #ff9ff3, #ff6b6b); }
-            50% { background: linear-gradient(135deg, #48dbfb, #ff9ff3, #ff6b6b, #feca57); }
-            75% { background: linear-gradient(135deg, #ff9ff3, #ff6b6b, #feca57, #48dbfb); }
-        }
-        
-        .celebration h2 {
-            font-size: 2.5em;
-            color: #000;
-            margin-bottom: 10px;
-            animation: bounce 1s ease-in-out infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
-        }
-        
-        .celebration p {
-            font-size: 1.3em;
-            color: #000;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        
-        .team-name {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #000;
-            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
-            animation: glow-celebration 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes glow-celebration {
-            from { text-shadow: 2px 2px 4px rgba(255,255,255,0.5); }
-            to { text-shadow: 2px 2px 20px rgba(255,255,255,0.8); }
-        }
-        
-        .confetti {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        
-        .confetti-piece {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            animation: confetti-fall 3s linear infinite;
-        }
-        
-        .confetti-piece:nth-child(1) {
-            left: 10%;
-            animation-delay: 0s;
-            background: #ff6b6b;
-        }
-        
-        .confetti-piece:nth-child(2) {
-            left: 30%;
-            animation-delay: 0.5s;
-            background: #feca57;
-        }
-        
-        .confetti-piece:nth-child(3) {
-            left: 50%;
-            animation-delay: 1s;
-            background: #48dbfb;
-        }
-        
-        .confetti-piece:nth-child(4) {
-            left: 70%;
-            animation-delay: 1.5s;
-            background: #ff9ff3;
-        }
-        
-        .confetti-piece:nth-child(5) {
-            left: 90%;
-            animation-delay: 2s;
-            background: #54a0ff;
-        }
-        
-        @keyframes confetti-fall {
-            0% {
-                transform: translateY(-100px) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(200px) rotate(720deg);
-                opacity: 0;
-            }
-        }
-        
-        .action-items-scroller {
-            background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
-            background-size: 400% 400%;
-            animation: gradient-shift 3s ease infinite;
-            border: 2px solid #00ffff;
-            border-radius: 10px;
-            margin: 30px 0;
-            overflow: hidden;
-            position: relative;
-            height: 60px;
-            display: flex;
-            align-items: center;
-        }
-        
-        @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .action-items-scroller::before {
-            content: '⚡';
-            position: absolute;
-            left: 20px;
-            font-size: 1.5em;
-            color: #00ffff;
-            animation: pulse-glow 1.5s infinite;
-            z-index: 2;
-        }
-        
-        @keyframes pulse-glow {
-            0%, 100% { 
-                color: #00ffff;
-                text-shadow: 0 0 10px #00ffff;
-            }
-            50% { 
-                color: #ff00ff;
-                text-shadow: 0 0 20px #ff00ff;
-            }
-        }
-        
-        .scroller-content {
-            display: flex;
-            animation: scroll-left 20s linear infinite;
-            white-space: nowrap;
-            padding-left: 80px;
-        }
-        
-        @keyframes scroll-left {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        
-        .action-item {
-            color: #fff;
-            font-weight: bold;
-            margin-right: 50px;
-            font-size: 1.1em;
-        }
-        
-        .action-date {
-            background: linear-gradient(45deg, #00ffff, #ff00ff);
-            color: #000;
-            padding: 2px 8px;
+        .table-container {
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border: 2px solid #0f4c75;
             border-radius: 12px;
-            margin-left: 10px;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-        
-        .welcome-message {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border: 2px solid #feca57;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin: 30px 0;
-            animation: welcome-glow 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes welcome-glow {
-            from { box-shadow: 0 0 20px rgba(254,202,87,0.3); }
-            to { box-shadow: 0 0 30px rgba(254,202,87,0.6); }
-        }
-        
-        .welcome-content {
-            font-size: 1.3em;
-            color: #feca57;
-            font-weight: bold;
-        }
-        
-        .thank-you-section {
-            text-align: center;
-            margin: 50px 0;
-            position: relative;
-        }
-        
-        .thank-you-btn {
-            background: linear-gradient(45deg, #00ffff, #ff00ff);
-            border: none;
-            border-radius: 50px;
-            padding: 20px 40px;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #000;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
             overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 4px 20px rgba(15, 76, 117, 0.3);
         }
         
-        .thank-you-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(0,255,255,0.5);
+        .table-info {
+            background: linear-gradient(90deg, #0f4c75, #3282b8);
+            padding: 12px 20px;
+            color: #bbe1fa;
+            font-size: 15px;
+            font-weight: bold;
+            border-bottom: 2px solid #0f4c75;
         }
         
-        .celebration-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        table {
             width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            border-collapse: collapse;
         }
         
-        .celebration-overlay.active {
-            display: flex;
-            animation: fadeIn 0.5s ease;
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #3282b8;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        th {
+            background: linear-gradient(135deg, #0f4c75, #3282b8);
+            color: #bbe1fa;
+            text-shadow: 0 0 10px rgba(187, 225, 250, 0.5);
+            font-weight: bold;
         }
         
-        .thank-you-message {
-            font-size: 3em;
+        td {
+            color: #bbe1fa;
+            background: rgba(50, 130, 184, 0.1);
+        }
+        
+        .query-input {
+            width: 100%;
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border: 2px solid #e94560;
+            color: #bbe1fa;
+            padding: 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .execute-btn {
+            background: linear-gradient(45deg, #e94560, #f27121);
+            border: none;
             color: #fff;
-            text-align: center;
-            margin-bottom: 30px;
-            animation: bounceIn 1s ease;
-        }
-        
-        @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        
-        .slack-message {
-            font-size: 1.5em;
-            color: #00ffff;
-            text-align: center;
-            animation: slideUp 1s ease 0.5s both;
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .flying-emoji {
-            position: absolute;
-            font-size: 2em;
-            animation: fly 3s ease-out forwards;
-            pointer-events: none;
-        }
-        
-        @keyframes fly {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-200px) translateX(var(--random-x)) rotate(720deg);
-                opacity: 0;
-            }
-        }
-        
-        .firework {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            animation: firework 2s ease-out forwards;
-        }
-        
-        @keyframes firework {
-            0% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-300px) translateX(var(--random-x));
-                opacity: 0;
-            }
-        }
-        
-        .close-btn {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            background: none;
-            border: 2px solid #fff;
-            color: #fff;
-            font-size: 1.5em;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            padding: 15px 35px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
         }
         
-        .close-btn:hover {
-            background: #fff;
-            color: #000;
-            transform: rotate(90deg);
+        .execute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+        }
+        
+        .hint-btn {
+            background: linear-gradient(45deg, #f27121, #ffa726);
+            border: none;
+            color: #fff;
+            padding: 10px 25px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(242, 113, 33, 0.4);
+        }
+        
+        .hint-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(242, 113, 33, 0.6);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 18px;
+            background: linear-gradient(135deg, #0f4c75, #3282b8);
+            border-left: 4px solid #bbe1fa;
+            border-radius: 8px;
+            color: #bbe1fa;
+            box-shadow: 0 4px 15px rgba(15, 76, 117, 0.3);
+        }
+        
+        .explanation {
+            line-height: 1.8;
+            color: #bbe1fa;
+        }
+        
+        .explanation ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        
+        .explanation li {
+            margin: 10px 0;
+        }
+        
+        .highlight {
+            color: #f27121;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(242, 113, 33, 0.5);
+        }
+        
+        .animation-demo {
+            margin-top: 25px;
+            padding: 25px;
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border-radius: 12px;
+            border: 2px solid #3282b8;
+            box-shadow: 0 6px 25px rgba(50, 130, 184, 0.2);
+        }
+        
+        .demo-query {
+            background: linear-gradient(135deg, #2a2a3e, #1e1e2e);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            color: #e94560;
+            margin-bottom: 20px;
+            border-left: 4px solid #e94560;
+            font-size: 18px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .typing-text {
+            overflow: hidden;
+            border-right: 3px solid #e94560;
+            white-space: nowrap;
+            width: 0;
+            animation: typing 3s steps(20, end) forwards, blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #e94560; }
+        }
+        
+        .demo-table {
+            display: grid;
+            gap: 8px;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .demo-table.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .demo-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            padding: 12px;
+            background: linear-gradient(135deg, #2a2a3e, #1e1e2e);
+            border-radius: 8px;
+            border: 1px solid #3282b8;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .demo-row.header {
+            background: linear-gradient(135deg, #0f4c75, #3282b8);
+            font-weight: bold;
+            color: #bbe1fa;
+            text-shadow: 0 0 5px rgba(187, 225, 250, 0.5);
+            padding: 12px;
+            font-size: 14px;
+        }
+        
+        .slot-cell {
+            overflow: hidden;
+            height: 25px;
+            position: relative;
+        }
+        
+        .slot-content {
+            position: absolute;
+            top: 0;
+            transition: top 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            width: 100%;
+            color: #bbe1fa;
+            font-weight: bold;
+        }
+        
+        .slot-content.animate {
+            top: 0;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .demo-row .slot-content { 
+            color: #bbe1fa; 
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="stars"></div>
-    
-    <div class="container">
-        <div class="header">
-            <h1>📊 Weekly Data Science Review</h1>
-            <div class="date-time">Thursday, October 16, 2025 | 10:00 AM CET</div>
-            <div class="particle" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
-            <div class="particle" style="top: 60%; left: 80%; animation-delay: 2s;"></div>
-            <div class="particle" style="top: 80%; left: 20%; animation-delay: 4s;"></div>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number">40</div>
-                <div class="stat-label">Minutes</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Agenda Items</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">3</div>
-                <div class="stat-label">Presenters</div>
-            </div>
-        </div>
-        
-        <div class="celebration">
-            <div class="celebration-content">
-                <h2>🎉 CONGRATULATIONS! 🎉</h2>
-                <p>EMEA VIZCON 2025 FINALISTS</p>
-                <div class="team-name">EU FBA ANALYTICS TEAM</div>
-                <div class="confetti">
-                    <div class="confetti-piece"></div>
-                    <div class="confetti-piece"></div>
-                    <div class="confetti-piece"></div>
-                    <div class="confetti-piece"></div>
-                    <div class="confetti-piece"></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="flip-card">
-            <div class="flip-card-inner">
-                <div class="flip-card-front">
-                    <div>🚀 WDSR AGENDA</div>
-                </div>
-                <div class="flip-card-back">
-                    <div>✨ LET'S BEGIN!</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="action-items-scroller">
-            <div class="scroller-content">
-                <div class="action-item">
-                    ACTION ITEM: migrate SQL Starter Queries to SQL Bank (Quip; SOP)
-                    <span class="action-date">📅 Oct 13th</span>
-                </div>
-                <div class="action-item">
-                    ACTION ITEM: evaluate and formalize assigned Analyticon sessions (Quip)
-                    <span class="action-date">📅 Oct 30th</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="welcome-message">
-            <div class="welcome-content">
-                🎊 Welcome to the team <strong>Gita Rayung Andadri</strong>! 🎊
-            </div>
-        </div>
-        
-        <div class="agenda-item">
-            <div class="agenda-content">
-                <h3><span class="time-badge">10 min</span>🙏 General Updates / Thank You Relay</h3>
-                <p>Team-wide updates, acknowledgments, and appreciation for recent contributions</p>
-                <span class="owner">👥 All</span>
-            </div>
-        </div>
-        
-        <div class="agenda-item">
-            <div class="agenda-content">
-                <h3><span class="time-badge">15 min</span>📋 Previous WDSR Actions & Project Tracker | SIM</h3>
-                <p>Review action items from last week's meeting and update on project tracking system (SIM)</p>
-                <span class="owner">👥 All</span>
-            </div>
-        </div>
-        
-        <div class="agenda-item">
-            <div class="agenda-content">
-                <h3><span class="time-badge">5 min</span>📊 Doc Plots on R Studio</h3>
-                <p>Demonstration and discussion of documentation plots implementation in R Studio</p>
-                <span class="owner">👤 @alejacre</span>
-            </div>
-        </div>
-        
-        <div class="agenda-item">
-            <div class="agenda-content">
-                <h3><span class="time-badge">5 min</span>🌍 PanEU New Datasets (PSA)</h3>
-                <p>Overview of new Pan-European datasets and PSA (Public Service Announcement) data integration</p>
-                <span class="owner">👤 @yvesfre</span>
-            </div>
-        </div>
-        
-        <div class="agenda-item">
-            <div class="agenda-content">
-                <h3><span class="time-badge">5 min</span>📈 Use Custom Charts in QS Dashboard</h3>
-                <p>Implementation and demonstration of custom chart components in QuickSight dashboard</p>
-                <span class="owner">👤 @rathiga</span>
-            </div>
-        </div>
-        
-        <div class="thank-you-section">
-            <button class="thank-you-btn" onclick="showCelebration()">
-                🙏 Thank You! 🙏
-            </button>
-        </div>
-        
-        <div class="celebration-overlay" id="celebrationOverlay">
-            <button class="close-btn" onclick="closeCelebration()">×</button>
-            <div class="thank-you-message">
-                🎉 THANK YOU FOR ATTENDING THE WDSR! 🎉
-            </div>
-            <div class="slack-message">
-                📝 Watch for meeting minutes in Slack channel
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>🔗 Meeting Link: <a href="#" class="meeting-link">teams.microsoft.com/join/weekly-ds-review</a></p>
-            <p>📝 Notes: Shared in #data-science-team channel post-meeting</p>
-        </div>
+    <!-- Header -->
+    <div class="header">
+        HYD Support Ops - Skill Development
     </div>
-    
+
+    <!-- Branding -->
+    <div class="branding">
+        <div><strong>Creator:</strong> Gaurav (rathiga)</div>
+        <div><strong>Pillar Head:</strong> Ambika (lingerka)</div>
+    </div>
+
+    <div class="container">
+        <!-- User Name Input Section -->
+        <div class="code-block" id="nameInput">
+            <h2 style="text-align: center; margin-bottom: 20px;">🎮 Welcome to SQL Learning!</h2>
+            <p style="text-align: center; margin-bottom: 25px;">Enter your name to start your SQL journey:</p>
+            <div style="text-align: center;">
+                <input type="text" id="userName" class="query-input" placeholder="Enter your name..." style="max-width: 300px; margin: 0 auto; display: block;">
+                <button class="execute-btn" onclick="startGame()" style="margin-top: 15px;">🚀 Start Learning SQL!</button>
+            </div>
+        </div>
+
+        <!-- Main Game Content (initially hidden) -->
+        <div id="gameContent" style="display: none;">
+        
+        <h1 class="neon-title">SQL Week 1: SELECT *</h1>
+        
+        <!-- Explanation Section -->
+        <div class="code-block">
+            <h2>🔍 How SELECT * Works</h2>
+            <div class="explanation">
+                <p>The <span class="highlight">SELECT *</span> statement is like asking for "everything" from a table:</p>
+                <ul>
+                    <li><strong>SELECT</strong> = "I want to see..."</li>
+                    <li><strong>*</strong> = "all columns"</li>
+                    <li><strong>FROM table_name</strong> = "from this specific table"</li>
+                </ul>
+                
+                <div class="animation-demo" id="animationDemo">
+                    <h4>🎬 Watch it in action:</h4>
+                    <div class="demo-query">
+                        <div class="typing-text" id="typingQuery">SELECT * FROM Products;</div>
+                    </div>
+                    <div class="demo-table" id="demoTable">
+                        <div class="demo-row header">
+                            <span>ID</span><span>Product</span><span>Price</span>
+                        </div>
+                        <div class="demo-row">
+                            <div class="slot-cell"><div class="slot-content">1</div></div>
+                            <div class="slot-cell"><div class="slot-content">Gaming Laptop</div></div>
+                            <div class="slot-cell"><div class="slot-content">$1299</div></div>
+                        </div>
+                        <div class="demo-row">
+                            <div class="slot-cell"><div class="slot-content">2</div></div>
+                            <div class="slot-cell"><div class="slot-content">Smartphone</div></div>
+                            <div class="slot-cell"><div class="slot-content">$799</div></div>
+                        </div>
+                        <div class="demo-row">
+                            <div class="slot-cell"><div class="slot-content">3</div></div>
+                            <div class="slot-cell"><div class="slot-content">Wireless Headphones</div></div>
+                            <div class="slot-cell"><div class="slot-content">$299</div></div>
+                        </div>
+                    </div>
+                    <button class="execute-btn" onclick="playAnimation()" style="margin-top: 15px;">▶️ Play Animation</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Example Section -->
+        <div class="code-block">
+            <h2>🎬 Example: Netflix Movies Database</h2>
+            <p>Let's practice with Netflix's movie catalog. Try the pre-filled query below:</p>
+            
+            <div class="table-container">
+                <div class="table-info">
+                    📋 Table: <strong>Movies</strong> | Columns: ID (number), Title (text), Genre (text), Rating (decimal)
+                </div>
+                <table id="moviesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Genre</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Stranger Things</td><td>Sci-Fi</td><td>8.7</td></tr>
+                        <tr><td>2</td><td>The Crown</td><td>Drama</td><td>8.6</td></tr>
+                        <tr><td>3</td><td>Squid Game</td><td>Thriller</td><td>8.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <input type="text" class="query-input" id="sqlQuery" value="SELECT * FROM Movies;">
+            <button class="execute-btn" onclick="executeQuery()">⚡ Execute Query</button>
+            
+            <div id="result" class="result" style="display:none;">
+                <h4>✅ Perfect! You retrieved all movies from the database.</h4>
+            </div>
+        </div>
+        
+        <!-- Level 2: SELECT Single Column -->
+        <div class="code-block" id="level2" style="display:none;">
+            <h2>🎯 Level 2: SELECT Single Column</h2>
+            <p>Great! Now let's select just ONE column. Sometimes you only need specific information:</p>
+            
+            <div class="table-container">
+                <div class="table-info">
+                    📋 Table: <strong>Movies</strong> | Challenge: Get only movie titles
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Title</th><th>Genre</th><th>Rating</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>Stranger Things</td><td>Sci-Fi</td><td>8.7</td></tr>
+                        <tr><td>2</td><td>The Crown</td><td>Drama</td><td>8.6</td></tr>
+                        <tr><td>3</td><td>Squid Game</td><td>Thriller</td><td>8.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <input type="text" class="query-input" id="sqlQuery2" placeholder="SELECT title FROM Movies;">
+            <button class="hint-btn" onclick="showHint(2)">💡 Hint</button>
+            <button class="execute-btn" onclick="executeQuery2()">⚡ Execute</button>
+            <div id="hint2" style="display:none; margin-top:10px; color:#ffaa00;">
+                💡 Use: SELECT column_name FROM table_name;
+            </div>
+            <div id="result2" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Level 3: SELECT Two Columns -->
+        <div class="code-block" id="level3" style="display:none;">
+            <h2>👥 Level 3: SELECT Two Columns</h2>
+            <p>Perfect! Now select TWO specific columns - like making a contact list:</p>
+            
+            <div class="table-container">
+                <div class="table-info">
+                    📋 Table: <strong>Users</strong> | Challenge: Get name and email for contacts
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>City</th></tr></thead>
+                    <tbody>
+                        <tr><td>101</td><td>Alice Johnson</td><td>alice@email.com</td><td>New York</td></tr>
+                        <tr><td>102</td><td>Bob Smith</td><td>bob@email.com</td><td>London</td></tr>
+                        <tr><td>103</td><td>Carol Davis</td><td>carol@email.com</td><td>Tokyo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <input type="text" class="query-input" id="sqlQuery3" placeholder="SELECT name, email FROM Users;">
+            <button class="hint-btn" onclick="showHint(3)">💡 Hint</button>
+            <button class="execute-btn" onclick="executeQuery3()">⚡ Execute</button>
+            <div id="hint3" style="display:none; margin-top:10px; color:#ffaa00;">
+                💡 Use: SELECT column1, column2 FROM table_name;
+            </div>
+            <div id="result3" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Level 4: SELECT Multiple Columns -->
+        <div class="code-block" id="level4" style="display:none;">
+            <h2>🏆 Level 4: SELECT Multiple Columns</h2>
+            <p>Excellent! Final challenge - select THREE columns for movie recommendations:</p>
+            
+            <div class="table-container">
+                <div class="table-info">
+                    📋 Table: <strong>Movies</strong> | Challenge: Get title, genre, and rating
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Title</th><th>Genre</th><th>Rating</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>Stranger Things</td><td>Sci-Fi</td><td>8.7</td></tr>
+                        <tr><td>2</td><td>The Crown</td><td>Drama</td><td>8.6</td></tr>
+                        <tr><td>3</td><td>Squid Game</td><td>Thriller</td><td>8.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <input type="text" class="query-input" id="sqlQuery4" placeholder="SELECT title, genre, rating FROM Movies;">
+            <button class="hint-btn" onclick="showHint(4)">💡 Hint</button>
+            <button class="execute-btn" onclick="executeQuery4()">⚡ Execute</button>
+            <div id="hint4" style="display:none; margin-top:10px; color:#ffaa00;">
+                💡 Use: SELECT column1, column2, column3 FROM table_name;
+            </div>
+            <div id="result4" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Amazing Celebration -->
+        <div class="code-block" id="celebration" style="display:none;">
+            <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; margin: 30px 0;">
+                <h1 style="color: white; font-size: 4rem; margin-bottom: 20px; animation: bounce 2s infinite;">🎉 AMAZING! 🎉</h1>
+                <h2 style="color: white; margin-bottom: 20px; font-size: 2rem;"><span id="celebrationName"></span>, You've Mastered the SELECT Statement!</h2>
+                <p style="color: white; font-size: 1.3em; margin-bottom: 25px;">
+                    🌟 You now know how to retrieve data from databases like a pro! 🌟
+                </p>
+                <div style="background: rgba(255,255,255,0.2); padding: 25px; border-radius: 15px; margin: 25px 0;">
+                    <h3 style="color: white; margin-bottom: 20px; font-size: 1.5rem;">🏆 What You've Learned:</h3>
+                    <div style="text-align: left; color: white; font-size: 1.1em;">
+                        <p style="margin: 12px 0;">✅ SELECT * - Get all data from a table</p>
+                        <p style="margin: 12px 0;">✅ SELECT single column - Get specific information</p>
+                        <p style="margin: 12px 0;">✅ SELECT multiple columns - Get exactly what you need</p>
+                        <p style="margin: 12px 0;">✅ Building efficient queries step by step</p>
+                    </div>
+                </div>
+                <h3 style="color: white; margin-top: 30px; font-size: 1.8rem;">🚀 <span id="celebrationName2"></span>, You're Ready for Advanced SQL!</h3>
+                <p style="color: white; font-size: 1.2em;">Keep practicing and you'll become a SQL wizard! 🧙‍♂️</p>
+                
+                <div style="margin-top: 30px;">
+                    <div style="display: inline-block; margin: 0 20px; text-align: center;">
+                        <div style="font-size: 2rem; color: #ffeb3b;">🎯</div>
+                        <div style="color: white; font-weight: bold;">4/4 Levels</div>
+                        <div style="color: white;">Completed</div>
+                    </div>
+                    <div style="display: inline-block; margin: 0 20px; text-align: center;">
+                        <div style="font-size: 2rem; color: #4caf50;">🏆</div>
+                        <div style="color: white; font-weight: bold;">SQL Master</div>
+                        <div style="color: white;">Certificate</div>
+                    </div>
+                    <div style="display: inline-block; margin: 0 20px; text-align: center;">
+                        <div style="font-size: 2rem; color: #ff9800;">📈</div>
+                        <div style="color: white; font-weight: bold;">Level Up!</div>
+                        <div style="color: white;">Beginner → Pro</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        </div>
+        <!-- End of Game Content -->
+    </div>
+
     <script>
-        // Create animated stars
-        function createStars() {
-            const starsContainer = document.querySelector('.stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                starsContainer.appendChild(star);
+        let userName = '';
+        
+        function startGame() {
+            const nameInput = document.getElementById('userName').value.trim();
+            if (nameInput) {
+                userName = nameInput;
+                document.getElementById('nameInput').style.display = 'none';
+                document.getElementById('gameContent').style.display = 'block';
+                
+                // Auto-play animation after game starts
+                setTimeout(playAnimation, 1000);
+            } else {
+                alert('Please enter your name to start!');
+            }
+        }
+        function executeQuery() {
+            const query = document.getElementById('sqlQuery').value.trim();
+            const result = document.getElementById('result');
+            
+            if (query.toLowerCase().includes('select * from movies')) {
+                result.style.display = 'block';
+                result.innerHTML = '<h4>✅ Perfect! You retrieved all movies from the database.</h4>';
+                
+                // Add animation effect
+                const rows = document.querySelectorAll('#moviesTable tbody tr');
+                rows.forEach((row, index) => {
+                    setTimeout(() => {
+                        row.style.background = '#00ff4120';
+                        row.style.transform = 'scale(1.02)';
+                        setTimeout(() => {
+                            row.style.background = '';
+                            row.style.transform = '';
+                        }, 500);
+                    }, index * 200);
+                });
+                
+                // Show level 2 after 2 seconds
+                setTimeout(() => {
+                    document.getElementById('level2').style.display = 'block';
+                    document.getElementById('level2').scrollIntoView({ behavior: 'smooth' });
+                }, 2000);
+                
+            } else {
+                result.style.display = 'block';
+                result.innerHTML = '<h4>❌ Try again! Hint: Use SELECT * FROM Movies;</h4>';
+                result.style.background = '#4f0d0d';
             }
         }
         
-        // Add hover sound effect simulation
-        document.querySelectorAll('.agenda-item, .stat-card').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                item.style.transform += ' scale(1.02)';
-            });
-            item.addEventListener('mouseleave', () => {
-                item.style.transform = item.style.transform.replace(' scale(1.02)', '');
-            });
-        });
-        
-        createStars();
-        
-        function showCelebration() {
-            const overlay = document.getElementById('celebrationOverlay');
-            overlay.classList.add('active');
+        function executeQuery2() {
+            const query = document.getElementById('sqlQuery2').value.trim();
+            const result = document.getElementById('result2');
             
-            // Create flying emojis
-            const emojis = ['🎉', '🎊', '✨', '🌟', '💫', '🎈', '🎁', '👏'];
-            
-            for (let i = 0; i < 30; i++) {
-                setTimeout(() => {
-                    const emoji = document.createElement('div');
-                    emoji.className = 'flying-emoji';
-                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                    emoji.style.left = Math.random() * 100 + '%';
-                    emoji.style.top = '80%';
-                    emoji.style.setProperty('--random-x', (Math.random() - 0.5) * 400 + 'px');
-                    overlay.appendChild(emoji);
+            if (query.toLowerCase().includes('select title from movies')) {
+                result.style.display = 'block';
+                result.innerHTML = '<h4>🎉 Perfect! You selected just the titles!</h4>';
+                result.style.background = '#0d4f0d';
+                
+                // Animate table transformation
+                const table = document.querySelector('#level2 table');
+                const rows = table.querySelectorAll('tr');
+                
+                // Hide non-title columns with animation
+                rows.forEach((row, index) => {
+                    const cells = row.querySelectorAll('th, td');
+                    [0, 2, 3].forEach(colIndex => { // Hide ID, Genre, Rating columns
+                        if (cells[colIndex]) {
+                            setTimeout(() => {
+                                cells[colIndex].style.transition = 'all 0.5s ease';
+                                cells[colIndex].style.opacity = '0';
+                                cells[colIndex].style.width = '0';
+                                cells[colIndex].style.padding = '0';
+                                setTimeout(() => cells[colIndex].style.display = 'none', 500);
+                            }, index * 100);
+                        }
+                    });
                     
-                    setTimeout(() => {
-                        emoji.remove();
-                    }, 3000);
-                }, i * 100);
+                    // Highlight remaining title column
+                    if (cells[1]) {
+                        setTimeout(() => {
+                            cells[1].style.transition = 'all 0.3s ease';
+                            cells[1].style.boxShadow = '0 0 15px rgba(187, 225, 250, 0.8)';
+                        }, (index * 100) + 600);
+                    }
+                });
+                
+                setTimeout(() => {
+                    document.getElementById('level3').style.display = 'block';
+                    document.getElementById('level3').scrollIntoView({ behavior: 'smooth' });
+                }, 3000);
+            } else {
+                result.style.display = 'block';
+                result.innerHTML = '<h4>❌ Try again! Select only the title column.</h4>';
+                result.style.background = '#4f0d0d';
             }
+        }
+        
+        function executeQuery3() {
+            const query = document.getElementById('sqlQuery3').value.trim();
+            const result = document.getElementById('result3');
             
-            // Create fireworks
-            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'];
+            if (query.toLowerCase().includes('select name, email from users') || 
+                query.toLowerCase().includes('select name,email from users')) {
+                result.style.display = 'block';
+                result.innerHTML = '<h4>🌟 Excellent! You selected two columns!</h4>';
+                result.style.background = '#0d4f0d';
+                
+                // Animate table transformation
+                const table = document.querySelector('#level3 table');
+                const rows = table.querySelectorAll('tr');
+                
+                // Hide ID and City columns
+                rows.forEach((row, index) => {
+                    const cells = row.querySelectorAll('th, td');
+                    [0, 3].forEach(colIndex => { // Hide ID and City columns
+                        if (cells[colIndex]) {
+                            setTimeout(() => {
+                                cells[colIndex].style.transition = 'all 0.5s ease';
+                                cells[colIndex].style.opacity = '0';
+                                cells[colIndex].style.width = '0';
+                                cells[colIndex].style.padding = '0';
+                                setTimeout(() => cells[colIndex].style.display = 'none', 500);
+                            }, index * 100);
+                        }
+                    });
+                    
+                    // Highlight remaining name and email columns
+                    [1, 2].forEach(colIndex => {
+                        if (cells[colIndex]) {
+                            setTimeout(() => {
+                                cells[colIndex].style.transition = 'all 0.3s ease';
+                                cells[colIndex].style.boxShadow = '0 0 15px rgba(187, 225, 250, 0.8)';
+                            }, (index * 100) + 600);
+                        }
+                    });
+                });
+                
+                setTimeout(() => {
+                    document.getElementById('level4').style.display = 'block';
+                    document.getElementById('level4').scrollIntoView({ behavior: 'smooth' });
+                }, 3000);
+            } else {
+                result.style.display = 'block';
+                result.innerHTML = '<h4>❌ Try again! Select name and email columns.</h4>';
+                result.style.background = '#4f0d0d';
+            }
+        }
+        
+        function executeQuery4() {
+            const query = document.getElementById('sqlQuery4').value.trim();
+            const result = document.getElementById('result4');
             
+            if (query.toLowerCase().includes('select title, genre, rating from movies') || 
+                query.toLowerCase().includes('select title,genre,rating from movies')) {
+                result.style.display = 'block';
+                result.innerHTML = '<h4>🚀 AMAZING! Final level completed!</h4>';
+                result.style.background = '#0d4f0d';
+                
+                // Animate table transformation
+                const table = document.querySelector('#level4 table');
+                const rows = table.querySelectorAll('tr');
+                
+                // Hide ID column
+                rows.forEach((row, index) => {
+                    const cells = row.querySelectorAll('th, td');
+                    if (cells[0]) { // Hide ID column
+                        setTimeout(() => {
+                            cells[0].style.transition = 'all 0.5s ease';
+                            cells[0].style.opacity = '0';
+                            cells[0].style.width = '0';
+                            cells[0].style.padding = '0';
+                            setTimeout(() => cells[0].style.display = 'none', 500);
+                        }, index * 100);
+                    }
+                    
+                    // Highlight remaining title, genre, rating columns
+                    [1, 2, 3].forEach(colIndex => {
+                        if (cells[colIndex]) {
+                            setTimeout(() => {
+                                cells[colIndex].style.transition = 'all 0.3s ease';
+                                cells[colIndex].style.boxShadow = '0 0 15px rgba(187, 225, 250, 0.8)';
+                            }, (index * 100) + 600);
+                        }
+                    });
+                });
+                
+                // Show celebration after 3 seconds
+                setTimeout(() => {
+                    // Set user name in celebration
+                    document.getElementById('celebrationName').textContent = userName;
+                    document.getElementById('celebrationName2').textContent = userName;
+                    
+                    document.getElementById('celebration').style.display = 'block';
+                    document.getElementById('celebration').scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Trigger confetti effect
+                    createConfetti();
+                }, 3000);
+            } else {
+                result.style.display = 'block';
+                result.innerHTML = '<h4>❌ Try again! Select title, genre, and rating.</h4>';
+                result.style.background = '#4f0d0d';
+            }
+        }
+        
+        function showHint(level) {
+            document.getElementById('hint' + (level || '')).style.display = 'block';
+        }
+        
+        function createConfetti() {
+            const colors = ['#ff6b9d', '#4ecdc4', '#ffe66d', '#ff9f43', '#a55eea'];
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
-                    const firework = document.createElement('div');
-                    firework.className = 'firework';
-                    firework.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    firework.style.left = Math.random() * 100 + '%';
-                    firework.style.top = '90%';
-                    firework.style.setProperty('--random-x', (Math.random() - 0.5) * 600 + 'px');
-                    overlay.appendChild(firework);
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '-10px';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.zIndex = '9999';
+                    confetti.style.animation = 'fall 3s linear forwards';
+                    document.body.appendChild(confetti);
                     
-                    setTimeout(() => {
-                        firework.remove();
-                    }, 2000);
-                }, i * 50);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 100);
             }
         }
         
-        function closeCelebration() {
-            const overlay = document.getElementById('celebrationOverlay');
-            overlay.classList.remove('active');
+        function playAnimation() {
+            // Reset typing animation
+            const typingQuery = document.getElementById('typingQuery');
+            const demoTable = document.getElementById('demoTable');
+            
+            // Reset typing
+            typingQuery.style.animation = 'none';
+            typingQuery.style.width = '0';
+            demoTable.classList.remove('show');
+            
+            // Reset slot contents - but keep them visible initially
+            const slotContents = document.querySelectorAll('.slot-content');
+            slotContents.forEach(content => {
+                content.classList.remove('animate');
+                content.style.top = '0'; // Keep visible initially
+            });
+            
+            // Start typing animation
+            setTimeout(() => {
+                typingQuery.style.animation = 'typing 3s steps(20, end) forwards, blink-caret 0.75s step-end infinite';
+            }, 100);
+            
+            // Show table after typing completes
+            setTimeout(() => {
+                demoTable.classList.add('show');
+                
+                // Animate slot machine effect - move from top to show the "reveal" effect
+                slotContents.forEach((content, index) => {
+                    // First hide them by moving up
+                    content.style.top = '-100%';
+                    setTimeout(() => {
+                        content.style.top = '0';
+                        content.classList.add('animate');
+                    }, index * 200); // Simpler timing - 200ms delay per element
+                });
+            }, 3500);
         }
+        
+        // Auto-play animation on page load - removed since we now start after name input
+        // window.addEventListener('load', () => {
+        //     setTimeout(playAnimation, 1000);
+        // });
     </script>
 </body>
 </html>
